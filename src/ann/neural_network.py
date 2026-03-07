@@ -15,11 +15,10 @@ class NeuralNetwork:
         input_dim = 784
         output_dim = 10
 
-        num_layers = getattr(cli_args, "num_layers", 2)
-        hidden_sizes = getattr(cli_args, "hidden_size", [128]*num_layers)
+        hidden_sizes = getattr(cli_args, "hidden_size", [128, 128])
+        num_layers = getattr(cli_args, "num_layers", len(hidden_sizes))
 
-        if len(hidden_sizes) < num_layers:
-            hidden_sizes = hidden_sizes + [hidden_sizes[-1]]*(num_layers-len(hidden_sizes))
+        hidden_sizes = hidden_sizes[:num_layers]
 
         activation = getattr(cli_args, "activation", "relu")
         weight_init = getattr(cli_args, "weight_init", "xavier")
@@ -28,15 +27,15 @@ class NeuralNetwork:
         optimizer_name = getattr(cli_args, "optimizer", "sgd")
         lr = getattr(cli_args, "learning_rate", 0.001)
 
-        sizes = [input_dim] + hidden_sizes[:num_layers] + [output_dim]
+        sizes = [input_dim] + hidden_sizes + [output_dim]
 
-        for i in range(len(sizes)-1):
+        for i in range(len(sizes) - 1):
 
-            act = activation if i < len(sizes)-2 else None
+            act = activation if i < len(sizes) - 2 else None
 
             layer = NeuralLayer(
                 sizes[i],
-                sizes[i+1],
+                sizes[i + 1],
                 activation=act,
                 weight_init=weight_init
             )
@@ -104,7 +103,7 @@ class NeuralNetwork:
 
             for i in range(0, n, batch_size):
 
-                idx = perm[i:i+batch_size]
+                idx = perm[i:i + batch_size]
 
                 X_batch = X_train[idx]
                 y_batch = y_train[idx]
@@ -118,6 +117,7 @@ class NeuralNetwork:
                 if iteration < 50:
 
                     grad_matrix = self.layers[0].grad_W
+
                     grad_logs = {}
 
                     for neuron in range(min(5, grad_matrix.shape[1])):
