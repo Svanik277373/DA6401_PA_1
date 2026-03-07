@@ -1,7 +1,3 @@
-"""
-Neural Layer implementation
-"""
-
 import numpy as np
 from ann.activations import Activation
 
@@ -16,7 +12,6 @@ class NeuralLayer:
         self.activation_name = activation
         self.activation = Activation(activation) if activation else None
 
-        
         if weight_init == "xavier":
 
             limit = np.sqrt(6 / (input_dim + output_dim))
@@ -32,11 +27,12 @@ class NeuralLayer:
 
         else:
             raise ValueError(f"Unknown weight initialization: {weight_init}")
+
         self.b = np.zeros((1, output_dim))
 
     def forward(self, X):
 
-        self.X = X
+        self.A_prev = X
 
         self.Z = X @ self.W + self.b
 
@@ -49,17 +45,12 @@ class NeuralLayer:
 
     def backward(self, grad_output):
 
-        
         if self.activation:
             grad_output = grad_output * self.activation.backward(self.Z)
 
-        
-        m = self.X.shape[0]
+        self.grad_W = self.A_prev.T @ grad_output
+        self.grad_b = np.sum(grad_output, axis=0, keepdims=True)
 
-        self.grad_W = (self.X.T @ grad_output) / m
-        self.grad_b = np.sum(grad_output, axis=0, keepdims=True) / m
-
-        
         grad_input = grad_output @ self.W.T
 
         return grad_input
