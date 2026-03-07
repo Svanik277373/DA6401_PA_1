@@ -55,7 +55,7 @@ def evaluate_model(model, X_test, y_test):
 
     accuracy = np.mean(preds == labels)
 
-    # precision, recall, f1 (macro)
+    
     num_classes = 10
 
     precision_list = []
@@ -103,12 +103,12 @@ def main():
     print("Loaded model:", model_path)
     print("Dataset:", dataset)
 
-    # load dataset
+    
     loader = DataLoader(dataset)
 
     X_train, y_train, X_test, y_test = loader.load_data()
 
-    # create model
+    
     class Args:
         hidden_size = args.hidden_size
         activation = args.activation
@@ -119,10 +119,10 @@ def main():
 
     model = NeuralNetwork(Args)
 
-    # load saved weights
+   
     set_model_weights(model, weights)
 
-    # evaluate
+    
     results = evaluate_model(model, X_test, y_test)
 
     print("\nEvaluation Results")

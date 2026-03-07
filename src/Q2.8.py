@@ -6,9 +6,7 @@ from utils.data_loader import DataLoader
 from ann.neural_network import NeuralNetwork
 
 
-#################################################
-# Load saved model
-#################################################
+
 
 def load_model(model_path):
 
@@ -33,9 +31,7 @@ def load_model(model_path):
     return model
 
 
-#################################################
-# Confusion Matrix
-#################################################
+
 
 def compute_confusion_matrix(y_true, y_pred, num_classes=10):
 
@@ -47,9 +43,7 @@ def compute_confusion_matrix(y_true, y_pred, num_classes=10):
     return cm
 
 
-#################################################
-# Main
-#################################################
+
 
 def main():
 
@@ -66,9 +60,7 @@ def main():
     preds = np.argmax(logits, axis=1)
     labels = np.argmax(y_test, axis=1)
 
-    ############################################
-    # Confusion Matrix (W&B)
-    ############################################
+   
 
     class_names = [
         "T-shirt",
@@ -93,9 +85,7 @@ def main():
         )
     })
 
-    ############################################
-    # Creative visualization: Misclassified images
-    ############################################
+
 
     misclassified = np.where(preds != labels)[0]
 

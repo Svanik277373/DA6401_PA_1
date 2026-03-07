@@ -62,8 +62,7 @@ class NeuralNetwork:
 
             out = layer.forward(out)
 
-        # ---- Q2.5 Dead neuron investigation ----
-        # Only log when LR is high (used only in Q2.5 experiments)
+        
             if hasattr(self.optimizer, "lr") and self.optimizer.lr >= 0.1:
 
                 dead_fraction = np.mean(out == 0)
@@ -89,7 +88,7 @@ class NeuralNetwork:
 
         n = X_train.shape[0]
 
-        metric_subset = 500  # evaluate metrics on small subset for speed
+        metric_subset = 500  
         iteration = 0
         for epoch in range(epochs):
 
@@ -112,7 +111,7 @@ class NeuralNetwork:
                 self.backward()
                 if iteration < 50:
 
-                    layer = self.layers[0]   # first hidden layer
+                    layer = self.layers[0]   
 
                     grad_matrix = layer.grad_W
 
@@ -133,12 +132,12 @@ class NeuralNetwork:
                 iteration += 1
                 grad_norm = np.linalg.norm(self.layers[0].grad_W)
 
-                # For Q2.4 Vanishing Gradient analysis
+                
                 grad_norm_layer1 = grad_norm
 
                 self.update_weights()
 
-            # ----- Training metrics -----
+            
             train_logits = self.forward(X_train[:metric_subset])
             train_loss = self.loss.forward(y_train[:metric_subset], train_logits)
 
@@ -151,11 +150,11 @@ class NeuralNetwork:
                 "epoch": epoch + 1,
                 "train_loss": train_loss,
                 "train_accuracy": train_accuracy,
-                "gradient_norm": grad_norm,          # existing metric
-                "grad_norm_layer1": grad_norm_layer1 # Q2.4 metric
+                "gradient_norm": grad_norm,          
+                "grad_norm_layer1": grad_norm_layer1 
 }
 
-            # ----- Validation metrics -----
+           
             if X_val is not None:
 
                 val_logits = self.forward(X_val[:metric_subset])

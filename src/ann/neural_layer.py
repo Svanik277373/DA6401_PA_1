@@ -16,7 +16,7 @@ class NeuralLayer:
         self.activation_name = activation
         self.activation = Activation(activation) if activation else None
 
-        # ----- Weight initialization -----
+        
         if weight_init == "xavier":
 
             limit = np.sqrt(6 / (input_dim + output_dim))
@@ -49,17 +49,17 @@ class NeuralLayer:
 
     def backward(self, grad_output):
 
-        # ----- activation gradient -----
+        
         if self.activation:
             grad_output = grad_output * self.activation.backward(self.Z)
 
-        # ----- weight gradients -----
+        
         m = self.X.shape[0]
 
         self.grad_W = (self.X.T @ grad_output) / m
         self.grad_b = np.sum(grad_output, axis=0, keepdims=True) / m
 
-        # ----- propagate gradient -----
+        
         grad_input = grad_output @ self.W.T
 
         return grad_input

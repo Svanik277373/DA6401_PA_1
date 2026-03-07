@@ -5,8 +5,7 @@ import os
 
 from train import main
 
-# Prevent NumPy / BLAS from using multiple threads
-# Improves performance when running parallel sweeps
+
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
@@ -59,10 +58,10 @@ def run_sweep():
     run = wandb.init()
     config = wandb.config
 
-    # Create readable architecture string
+    
     arch_str = "_".join(map(str, config.hidden_size))
 
-    # Assign clear run name based on hyperparameters
+    
     run.name = (
         f"{config.optimizer}"
         f"_lr{config.learning_rate}"
@@ -71,7 +70,7 @@ def run_sweep():
         f"_h{arch_str}"
     )
 
-    # Convert sweep config → CLI arguments
+    
     args = [
         "train.py",
         "-e", str(config.epochs),
@@ -104,7 +103,7 @@ if __name__ == "__main__":
 
     processes = []
 
-    NUM_AGENTS = 5   # number of parallel workers
+    NUM_AGENTS = 5   
 
     for _ in range(NUM_AGENTS):
 

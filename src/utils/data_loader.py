@@ -23,15 +23,15 @@ class DataLoader:
         else:
             (X_train, y_train), (X_test, y_test) = fashion_mnist.load_data()
 
-        # normalize
+       
         X_train = X_train.astype(np.float32) / 255.0
         X_test = X_test.astype(np.float32) / 255.0
 
-        # flatten images
+        
         X_train = X_train.reshape(X_train.shape[0], -1)
         X_test = X_test.reshape(X_test.shape[0], -1)
 
-        # one-hot encode labels
+        
         y_train = self.one_hot(y_train, 10)
         y_test = self.one_hot(y_test, 10)
 

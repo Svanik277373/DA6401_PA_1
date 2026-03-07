@@ -5,7 +5,7 @@ import os
 
 from train import main
 
-# Prevent BLAS thread explosion
+
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
@@ -36,7 +36,7 @@ sweep_config = {
 
         "hidden_size": {"values": [[128,128,128]]},
 
-        # Compare these two initializations
+       
         "weight_init": {"values": ["zeros", "xavier"]}
     }
 }
@@ -71,7 +71,7 @@ def start_agent(sweep_id):
     wandb.agent(
         sweep_id,
         function=run_sweep,
-        count=1   # one run per agent
+        count=1   
     )
 
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     processes = []
 
-    NUM_AGENTS = 2   # two parallel runs (zeros, xavier)
+    NUM_AGENTS = 2  
 
     for _ in range(NUM_AGENTS):
 

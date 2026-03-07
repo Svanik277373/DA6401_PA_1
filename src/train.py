@@ -110,9 +110,7 @@ def main():
 
     X_train, y_train, X_test, y_test = loader.load_data()
 
-    # -----------------------------
-    # Create validation split
-    # -----------------------------
+
     val_size = int(0.1 * len(X_train))
 
     X_val = X_train[-val_size:]
@@ -123,7 +121,7 @@ def main():
 
     model = NeuralNetwork(args)
 
-    # Train using validation set
+    
     model.train(
         X_train,
         y_train,
@@ -133,7 +131,7 @@ def main():
         batch_size=args.batch_size
     )
 
-    # Evaluate on validation set (used for sweep metric)
+    
 
     val_loss, val_accuracy = model.evaluate(X_val, y_val)
     logits = model.forward(X_val)
@@ -153,7 +151,7 @@ def main():
     wandb.run.summary["val_loss"] = float(val_loss)
     wandb.run.summary["f1"] = float(val_f1)
 
-    # Final evaluation on test set
+
     test_loss, test_accuracy = model.evaluate(X_test, y_test)
 
     log_metrics({
