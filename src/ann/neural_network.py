@@ -42,10 +42,13 @@ class NeuralNetwork:
 
         if optimizer_name == "sgd":
             self.optimizer = SGD(lr)
+
         elif optimizer_name == "momentum":
             self.optimizer = Momentum(lr)
+
         elif optimizer_name == "nag":
             self.optimizer = NAG(lr)
+
         else:
             self.optimizer = RMSProp(lr)
 
@@ -77,7 +80,7 @@ class NeuralNetwork:
 
         self.optimizer.step(self.layers)
 
-    def train(self, X_train, y_train, epochs=1, batch_size=32):
+    def train(self, X_train, y_train, X_val=None, y_val=None, epochs=1, batch_size=32):
 
         n = X_train.shape[0]
 
