@@ -20,7 +20,13 @@ class NeuralLayer:
 
     def forward(self, X):
 
-        X = np.atleast_2d(X)
+        X = np.array(X)
+
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+
+        if X.shape[0] == self.W.shape[0] and X.shape[1] == 1:
+            X = X.T
 
         self.A_prev = X
         self.Z = X @ self.W + self.b
@@ -34,7 +40,13 @@ class NeuralLayer:
 
     def backward(self, grad_output):
 
-        grad_output = np.atleast_2d(grad_output)
+        grad_output = np.array(grad_output)
+
+        if grad_output.ndim == 1:
+            grad_output = grad_output.reshape(1, -1)
+
+        if grad_output.shape[1] == 1:
+            grad_output = grad_output.T
 
         if self.activation:
             grad_output = grad_output * self.activation.backward(self.Z)
