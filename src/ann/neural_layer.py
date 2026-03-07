@@ -27,16 +27,25 @@ class NeuralLayer:
         self.Z = X @ self.W + self.b
 
         if self.activation:
-            return self.activation.forward(self.Z)
+            self.A = self.activation.forward(self.Z)
+        else:
+            self.A = self.Z
 
-        return self.Z
+        return self.A
 
     def backward(self, grad_output):
+
+        if grad_output.ndim == 1:
+            grad_output = grad_output.reshape(1, -1)
 
         if self.activation:
             grad_output = grad_output * self.activation.backward(self.Z)
 
-        self.grad_W = self.A_prev.T @ grad_output
-        self.grad_b = np.sum(grad_output, axis=0, keepdims=True)
+        m = self.A_prev.shape[0]
 
-        return grad_output @ self.W.T
+        self.grad_W = (self.A_prev.T @ grad_output) / m
+        self.grad_b = np.sum(grad_output, axis=0, keepdims=True) / m
+
+        grad_input = grad_output @ self.W.T
+
+        return grad_input
