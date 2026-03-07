@@ -3,7 +3,6 @@ import numpy as np
 from ann.neural_layer import NeuralLayer
 from ann.objective_functions import Loss
 from ann.optimizers import SGD, Momentum, NAG, RMSProp
-from utils.wandb import log_metrics
 
 
 class NeuralNetwork:
@@ -15,10 +14,7 @@ class NeuralNetwork:
         input_dim = 784
         output_dim = 10
 
-        num_layers = getattr(cli_args, "num_layers", 1)
         hidden_sizes = getattr(cli_args, "hidden_size", [])
-
-        hidden_sizes = hidden_sizes[:num_layers]
 
         activation = getattr(cli_args, "activation", "relu")
         weight_init = getattr(cli_args, "weight_init", "xavier")
@@ -33,27 +29,24 @@ class NeuralNetwork:
 
             act = activation if i < len(sizes) - 2 else None
 
-            layer = NeuralLayer(
-                sizes[i],
-                sizes[i + 1],
-                activation=act,
-                weight_init=weight_init
+            self.layers.append(
+                NeuralLayer(
+                    sizes[i],
+                    sizes[i + 1],
+                    activation=act,
+                    weight_init=weight_init
+                )
             )
-
-            self.layers.append(layer)
 
         self.loss = Loss(loss_name)
 
         if optimizer_name == "sgd":
             self.optimizer = SGD(lr)
-
         elif optimizer_name == "momentum":
             self.optimizer = Momentum(lr)
-
         elif optimizer_name == "nag":
             self.optimizer = NAG(lr)
-
-        elif optimizer_name == "rmsprop":
+        else:
             self.optimizer = RMSProp(lr)
 
     def forward(self, X):
@@ -84,7 +77,7 @@ class NeuralNetwork:
 
         self.optimizer.step(self.layers)
 
-    def train(self, X_train, y_train, X_val=None, y_val=None, epochs=1, batch_size=32):
+    def train(self, X_train, y_train, epochs=1, batch_size=32):
 
         n = X_train.shape[0]
 
@@ -122,13 +115,13 @@ class NeuralNetwork:
 
     def get_weights(self):
 
-        d = {}
+        weights = {}
 
         for i, layer in enumerate(self.layers):
-            d[f"W{i}"] = layer.W.copy()
-            d[f"b{i}"] = layer.b.copy()
+            weights[f"W{i}"] = layer.W.copy()
+            weights[f"b{i}"] = layer.b.copy()
 
-        return d
+        return weights
 
     def set_weights(self, weights):
 
