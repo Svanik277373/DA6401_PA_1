@@ -11,9 +11,6 @@ class NeuralNetwork:
 
         self.layers = []
 
-        input_dim = 784
-        output_dim = 10
-
         hidden_sizes = getattr(cli_args, "hidden_size", [])
 
         activation = getattr(cli_args, "activation", "relu")
@@ -23,7 +20,7 @@ class NeuralNetwork:
         optimizer_name = getattr(cli_args, "optimizer", "sgd")
         lr = getattr(cli_args, "learning_rate", 0.001)
 
-        sizes = [input_dim] + hidden_sizes + [output_dim]
+        sizes = [784] + hidden_sizes + [10]
 
         for i in range(len(sizes) - 1):
 
@@ -42,13 +39,10 @@ class NeuralNetwork:
 
         if optimizer_name == "sgd":
             self.optimizer = SGD(lr)
-
         elif optimizer_name == "momentum":
             self.optimizer = Momentum(lr)
-
         elif optimizer_name == "nag":
             self.optimizer = NAG(lr)
-
         else:
             self.optimizer = RMSProp(lr)
 
