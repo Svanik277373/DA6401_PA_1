@@ -42,13 +42,10 @@ class NeuralNetwork:
 
         if optimizer_name == "sgd":
             self.optimizer = SGD(lr)
-
         elif optimizer_name == "momentum":
             self.optimizer = Momentum(lr)
-
         elif optimizer_name == "nag":
             self.optimizer = NAG(lr)
-
         elif optimizer_name == "rmsprop":
             self.optimizer = RMSProp(lr)
 
@@ -59,7 +56,7 @@ class NeuralNetwork:
 
         out = X
 
-        for i, layer in enumerate(self.layers):
+        for layer in self.layers:
             out = layer.forward(out)
 
         return out
@@ -67,13 +64,6 @@ class NeuralNetwork:
     def backward(self, X=None, y=None):
 
         if X is not None and y is not None:
-
-            if X.ndim == 1:
-                X = X.reshape(1, -1)
-
-            if y.ndim == 1:
-                y = y.reshape(1, -1)
-
             logits = self.forward(X)
             self.loss.forward(y, logits)
 
@@ -83,6 +73,7 @@ class NeuralNetwork:
             grad = layer.backward(grad)
 
     def update_weights(self):
+
         self.optimizer.step(self.layers)
 
     def train(self, X_train, y_train, X_val=None, y_val=None, epochs=1, batch_size=32):
@@ -126,7 +117,6 @@ class NeuralNetwork:
         d = {}
 
         for i, layer in enumerate(self.layers):
-
             d[f"W{i}"] = layer.W.copy()
             d[f"b{i}"] = layer.b.copy()
 
