@@ -8,17 +8,36 @@ class Loss:
 
     def softmax(self, z):
 
-        z = np.atleast_2d(z)
+        z = np.array(z)
+
+        if z.ndim == 1:
+            z = z.reshape(1, -1)
+
+        if z.shape[1] == 1:
+            z = z.T
 
         z = z - np.max(z, axis=1, keepdims=True)
+
         exp = np.exp(z)
 
         return exp / np.sum(exp, axis=1, keepdims=True)
 
     def forward(self, y_true, logits):
 
-        y_true = np.atleast_2d(y_true)
-        logits = np.atleast_2d(logits)
+        y_true = np.array(y_true)
+        logits = np.array(logits)
+
+        if y_true.ndim == 1:
+            y_true = y_true.reshape(1, -1)
+
+        if logits.ndim == 1:
+            logits = logits.reshape(1, -1)
+
+        if y_true.shape[1] == 1:
+            y_true = y_true.T
+
+        if logits.shape[1] == 1:
+            logits = logits.T
 
         if self.name == "cross_entropy":
 
