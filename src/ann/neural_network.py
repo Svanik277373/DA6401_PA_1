@@ -2,23 +2,25 @@ import numpy as np
 
 from ann.neural_layer import NeuralLayer
 from ann.objective_functions import Loss
-from ann.optimizers import SGD,Momentum,NAG,RMSProp
+from ann.optimizers import SGD, Momentum, NAG, RMSProp
 from utils.wandb import log_metrics
 
 
 class NeuralNetwork:
 
-    def __init__(self,cli_args):
+    def __init__(self, cli_args):
 
         self.layers=[]
 
         input_dim=784
         output_dim=10
 
-        hidden_sizes=cli_args.hidden_size
-        activation=cli_args.activation
-
+        hidden_sizes=getattr(cli_args,"hidden_size",[128,128])
+        activation=getattr(cli_args,"activation","relu")
         weight_init=getattr(cli_args,"weight_init","xavier")
+        loss_name=getattr(cli_args,"loss","cross_entropy")
+        optimizer_name=getattr(cli_args,"optimizer","sgd")
+        lr=getattr(cli_args,"learning_rate",0.001)
 
         sizes=[input_dim]+hidden_sizes+[output_dim]
 
@@ -35,20 +37,18 @@ class NeuralNetwork:
 
             self.layers.append(layer)
 
-        self.loss=Loss(cli_args.loss)
+        self.loss=Loss(loss_name)
 
-        lr=cli_args.learning_rate
-
-        if cli_args.optimizer=="sgd":
+        if optimizer_name=="sgd":
             self.optimizer=SGD(lr)
 
-        elif cli_args.optimizer=="momentum":
+        elif optimizer_name=="momentum":
             self.optimizer=Momentum(lr)
 
-        elif cli_args.optimizer=="nag":
+        elif optimizer_name=="nag":
             self.optimizer=NAG(lr)
 
-        elif cli_args.optimizer=="rmsprop":
+        elif optimizer_name=="rmsprop":
             self.optimizer=RMSProp(lr)
 
     def forward(self,X):
@@ -70,6 +70,11 @@ class NeuralNetwork:
         return out
 
     def backward(self,X=None,y=None):
+
+        if X is not None and y is not None:
+
+            logits=self.forward(X)
+            self.loss.forward(y,logits)
 
         grad=self.loss.backward()
 
@@ -101,9 +106,6 @@ class NeuralNetwork:
                 logits=self.forward(X_batch)
 
                 loss_val=self.loss.forward(y_batch,logits)
-
-                self.loss.y_true=y_batch
-                self.loss.y_pred=logits
 
                 self.backward()
 
