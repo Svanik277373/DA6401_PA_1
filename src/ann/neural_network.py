@@ -15,7 +15,11 @@ class NeuralNetwork:
         input_dim = 784
         output_dim = 10
 
+        num_layers = getattr(cli_args, "num_layers", 1)
         hidden_sizes = getattr(cli_args, "hidden_size", [])
+
+        hidden_sizes = hidden_sizes[:num_layers]
+
         activation = getattr(cli_args, "activation", "relu")
         weight_init = getattr(cli_args, "weight_init", "xavier")
 
@@ -42,10 +46,13 @@ class NeuralNetwork:
 
         if optimizer_name == "sgd":
             self.optimizer = SGD(lr)
+
         elif optimizer_name == "momentum":
             self.optimizer = Momentum(lr)
+
         elif optimizer_name == "nag":
             self.optimizer = NAG(lr)
+
         elif optimizer_name == "rmsprop":
             self.optimizer = RMSProp(lr)
 
@@ -64,6 +71,7 @@ class NeuralNetwork:
     def backward(self, X=None, y=None):
 
         if X is not None and y is not None:
+
             logits = self.forward(X)
             self.loss.forward(y, logits)
 
