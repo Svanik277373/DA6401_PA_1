@@ -1,7 +1,3 @@
-"""
-Loss/Objective Functions and Their Derivatives
-"""
-
 import numpy as np
 
 
@@ -11,11 +7,23 @@ class Loss:
         self.name = name
 
     def softmax(self, z):
+
+        if z.ndim == 1:
+            z = z.reshape(1, -1)
+
         z = z - np.max(z, axis=1, keepdims=True)
+
         exp = np.exp(z)
+
         return exp / np.sum(exp, axis=1, keepdims=True)
 
     def forward(self, y_true, logits):
+
+        if y_true.ndim == 1:
+            y_true = y_true.reshape(1, -1)
+
+        if logits.ndim == 1:
+            logits = logits.reshape(1, -1)
 
         if self.name == "cross_entropy":
 
@@ -25,6 +33,7 @@ class Loss:
             m = y_true.shape[0]
 
             loss = -np.sum(y_true * np.log(self.probs + 1e-12)) / m
+
             return loss
 
         elif self.name == "mse":
@@ -36,10 +45,15 @@ class Loss:
 
     def backward(self):
 
+        m = self.y_true.shape[0]
+
         if self.name == "cross_entropy":
 
-            return (self.probs - self.y_true) / self.y_true.shape[0]
+            grad = self.probs - self.y_true
+            grad = grad / m
+
+            return grad
 
         elif self.name == "mse":
 
-            return 2 * (self.y_pred - self.y_true) / self.y_true.shape[0]
+            return 2 * (self.y_pred - self.y_true) / m
