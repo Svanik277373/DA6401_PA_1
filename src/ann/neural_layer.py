@@ -1,53 +1,41 @@
 import numpy as np
+from ann.activations import Activation
 
 
-class Loss:
+class NeuralLayer:
 
-    def __init__(self, name="cross_entropy"):
-        self.name = name
+    def __init__(self, input_dim, output_dim, activation=None, weight_init="xavier"):
 
-    def softmax(self, z):
+        self.activation = Activation(activation) if activation else None
 
-        if z.ndim == 1:
-            z = z.reshape(1, -1)
+        if weight_init == "xavier":
+            limit = np.sqrt(6 / (input_dim + output_dim))
+            self.W = np.random.uniform(-limit, limit, (input_dim, output_dim))
 
-        z = z - np.max(z, axis=1, keepdims=True)
-        exp = np.exp(z)
+        elif weight_init == "zeros":
+            self.W = np.zeros((input_dim, output_dim))
 
-        return exp / np.sum(exp, axis=1, keepdims=True)
+        else:
+            self.W = np.random.randn(input_dim, output_dim) * 0.01
 
-    def forward(self, y_true, logits):
+        self.b = np.zeros((1, output_dim))
 
-        if y_true.ndim == 1:
-            y_true = y_true.reshape(1, -1)
+    def forward(self, X):
 
-        if logits.ndim == 1:
-            logits = logits.reshape(1, -1)
+        self.A_prev = X
+        self.Z = X @ self.W + self.b
 
-        if self.name == "cross_entropy":
+        if self.activation:
+            return self.activation.forward(self.Z)
 
-            self.probs = self.softmax(logits)
-            self.y_true = y_true
+        return self.Z
 
-            m = y_true.shape[0]
+    def backward(self, grad):
 
-            return -np.sum(y_true * np.log(self.probs + 1e-12)) / m
+        if self.activation:
+            grad = grad * self.activation.backward(self.Z)
 
-        elif self.name == "mse":
+        self.grad_W = self.A_prev.T @ grad
+        self.grad_b = np.sum(grad, axis=0, keepdims=True)
 
-            self.y_true = y_true
-            self.y_pred = logits
-
-            return np.mean((y_true - logits) ** 2)
-
-    def backward(self):
-
-        m = self.y_true.shape[0]
-
-        if self.name == "cross_entropy":
-
-            return (self.probs - self.y_true) / m
-
-        elif self.name == "mse":
-
-            return 2 * (self.y_pred - self.y_true) / m
+        return grad @ self.W.T
