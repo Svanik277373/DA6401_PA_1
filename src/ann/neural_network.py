@@ -63,17 +63,43 @@ class NeuralNetwork:
 
         return out
 
-    def backward(self, X=None, y=None):
+def backward(self, X=None, y=None):
 
-        if X is not None and y is not None:
+    if X is not None and y is not None:
 
-            logits = self.forward(X)
-            self.loss.forward(y, logits)
+        X = np.array(X)
+        y = np.array(y)
 
-        grad = self.loss.backward()
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
 
-        for layer in reversed(self.layers):
-            grad = layer.backward(grad)
+        if y.ndim == 1:
+            y = y.reshape(1, -1)
+
+        logits = self.forward(X)
+        self.loss.forward(y, logits)
+
+    dA = self.loss.backward()
+
+    grad_W_list = []
+    grad_b_list = []
+
+    for layer in reversed(self.layers):
+
+        dA = layer.backward(dA)
+
+        grad_W_list.append(layer.grad_W)
+        grad_b_list.append(layer.grad_b)
+
+    self.grad_W = np.empty(len(grad_W_list), dtype=object)
+    self.grad_b = np.empty(len(grad_b_list), dtype=object)
+
+    for i, (gw, gb) in enumerate(zip(grad_W_list, grad_b_list)):
+
+        self.grad_W[i] = gw
+        self.grad_b[i] = gb
+
+    return self.grad_W, self.grad_b
 
     def update_weights(self):
 
