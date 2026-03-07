@@ -12,7 +12,6 @@ class Loss:
             z = z.reshape(1, -1)
 
         z = z - np.max(z, axis=1, keepdims=True)
-
         exp = np.exp(z)
 
         return exp / np.sum(exp, axis=1, keepdims=True)
@@ -32,9 +31,7 @@ class Loss:
 
             m = y_true.shape[0]
 
-            loss = -np.sum(y_true * np.log(self.probs + 1e-12)) / m
-
-            return loss
+            return -np.sum(y_true * np.log(self.probs + 1e-12)) / m
 
         elif self.name == "mse":
 
@@ -48,12 +45,7 @@ class Loss:
         m = self.y_true.shape[0]
 
         if self.name == "cross_entropy":
-
-            grad = self.probs - self.y_true
-            grad = grad / m
-
-            return grad
+            return (self.probs - self.y_true) / m
 
         elif self.name == "mse":
-
             return 2 * (self.y_pred - self.y_true) / m
