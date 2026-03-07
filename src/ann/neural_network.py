@@ -48,13 +48,7 @@ class NeuralNetwork:
 
     def forward(self, X):
 
-        X = np.array(X)
-
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
-
-        if X.shape[1] == 1:
-            X = X.T
+        X = np.atleast_2d(X)
 
         out = X
 
@@ -63,43 +57,36 @@ class NeuralNetwork:
 
         return out
 
-def backward(self, X=None, y=None):
+    def backward(self, X=None, y=None):
 
-    if X is not None and y is not None:
+        if X is not None and y is not None:
 
-        X = np.array(X)
-        y = np.array(y)
+            X = np.atleast_2d(X)
+            y = np.atleast_2d(y)
 
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
+            logits = self.forward(X)
+            self.loss.forward(y, logits)
 
-        if y.ndim == 1:
-            y = y.reshape(1, -1)
+        dA = self.loss.backward()
 
-        logits = self.forward(X)
-        self.loss.forward(y, logits)
+        grad_W_list = []
+        grad_b_list = []
 
-    dA = self.loss.backward()
+        for layer in reversed(self.layers):
 
-    grad_W_list = []
-    grad_b_list = []
+            dA = layer.backward(dA)
 
-    for layer in reversed(self.layers):
+            grad_W_list.append(layer.grad_W)
+            grad_b_list.append(layer.grad_b)
 
-        dA = layer.backward(dA)
+        self.grad_W = np.empty(len(grad_W_list), dtype=object)
+        self.grad_b = np.empty(len(grad_b_list), dtype=object)
 
-        grad_W_list.append(layer.grad_W)
-        grad_b_list.append(layer.grad_b)
+        for i, (gw, gb) in enumerate(zip(grad_W_list, grad_b_list)):
+            self.grad_W[i] = gw
+            self.grad_b[i] = gb
 
-    self.grad_W = np.empty(len(grad_W_list), dtype=object)
-    self.grad_b = np.empty(len(grad_b_list), dtype=object)
-
-    for i, (gw, gb) in enumerate(zip(grad_W_list, grad_b_list)):
-
-        self.grad_W[i] = gw
-        self.grad_b[i] = gb
-
-    return self.grad_W, self.grad_b
+        return self.grad_W, self.grad_b
 
     def update_weights(self):
 
