@@ -15,11 +15,7 @@ class NeuralNetwork:
         input_dim = 784
         output_dim = 10
 
-        hidden_sizes = getattr(cli_args, "hidden_size", [128, 128])
-        num_layers = getattr(cli_args, "num_layers", len(hidden_sizes))
-
-        hidden_sizes = hidden_sizes[:num_layers]
-
+        hidden_sizes = getattr(cli_args, "hidden_size", [])
         activation = getattr(cli_args, "activation", "relu")
         weight_init = getattr(cli_args, "weight_init", "xavier")
 
@@ -57,6 +53,9 @@ class NeuralNetwork:
             self.optimizer = RMSProp(lr)
 
     def forward(self, X):
+
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
 
         out = X
 
@@ -110,7 +109,7 @@ class NeuralNetwork:
 
                 logits = self.forward(X_batch)
 
-                loss_val = self.loss.forward(y_batch, logits)
+                self.loss.forward(y_batch, logits)
 
                 self.backward()
 
@@ -195,11 +194,8 @@ class NeuralNetwork:
 
         for i, layer in enumerate(self.layers):
 
-            key_w = f"W{i}"
-            key_b = f"b{i}"
+            if f"W{i}" in weights:
+                layer.W = weights[f"W{i}"]
 
-            if key_w in weights:
-                layer.W = weights[key_w]
-
-            if key_b in weights:
-                layer.b = weights[key_b]
+            if f"b{i}" in weights:
+                layer.b = weights[f"b{i}"]
