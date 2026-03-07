@@ -108,6 +108,7 @@ class NeuralNetwork:
                 if iteration < 50:
 
                     layer = self.layers[0]
+
                     grad_matrix = layer.grad_W
 
                     grad_logs = {}
@@ -174,20 +175,18 @@ class NeuralNetwork:
 
     def get_weights(self):
 
-        weights = []
+        d = {}
 
-        for layer in self.layers:
+        for i, layer in enumerate(self.layers):
 
-            weights.append({
-                "W": layer.W.copy(),
-                "b": layer.b.copy()
-            })
+            d[f"W{i}"] = layer.W.copy()
+            d[f"b{i}"] = layer.b.copy()
 
-        return weights
+        return d
 
     def set_weights(self, weights):
 
         for i, layer in enumerate(self.layers):
 
-            layer.W = weights[i]["W"]
-            layer.b = weights[i]["b"]
+            layer.W = weights[f"W{i}"]
+            layer.b = weights[f"b{i}"]
