@@ -60,22 +60,19 @@ class NeuralNetwork:
         out = X
 
         for i, layer in enumerate(self.layers):
-
             out = layer.forward(out)
-
-            if hasattr(self.optimizer, "lr") and self.optimizer.lr >= 0.1:
-
-                dead_fraction = np.mean(out == 0)
-
-                log_metrics({
-                    f"layer_{i}_dead_fraction": dead_fraction
-                })
 
         return out
 
     def backward(self, X=None, y=None):
 
         if X is not None and y is not None:
+
+            if X.ndim == 1:
+                X = X.reshape(1, -1)
+
+            if y.ndim == 1:
+                y = y.reshape(1, -1)
 
             logits = self.forward(X)
             self.loss.forward(y, logits)
@@ -86,15 +83,11 @@ class NeuralNetwork:
             grad = layer.backward(grad)
 
     def update_weights(self):
-
         self.optimizer.step(self.layers)
 
     def train(self, X_train, y_train, X_val=None, y_val=None, epochs=1, batch_size=32):
 
         n = X_train.shape[0]
-
-        metric_subset = 500
-        iteration = 0
 
         for epoch in range(epochs):
 
@@ -113,58 +106,7 @@ class NeuralNetwork:
 
                 self.backward()
 
-                if iteration < 50:
-
-                    grad_matrix = self.layers[0].grad_W
-
-                    grad_logs = {}
-
-                    for neuron in range(min(5, grad_matrix.shape[1])):
-
-                        grad_logs[f"grad_neuron_{neuron}"] = float(
-                            np.mean(np.abs(grad_matrix[:, neuron]))
-                        )
-
-                    log_metrics(grad_logs)
-
-                grad_norm = np.linalg.norm(self.layers[0].grad_W)
-
                 self.update_weights()
-
-                iteration += 1
-
-                grad_norm_layer1 = grad_norm
-
-            train_logits = self.forward(X_train[:metric_subset])
-            train_loss = self.loss.forward(y_train[:metric_subset], train_logits)
-
-            train_preds = np.argmax(train_logits, axis=1)
-            train_labels = np.argmax(y_train[:metric_subset], axis=1)
-
-            train_accuracy = np.mean(train_preds == train_labels)
-
-            metrics = {
-                "epoch": epoch + 1,
-                "train_loss": train_loss,
-                "train_accuracy": train_accuracy,
-                "gradient_norm": grad_norm,
-                "grad_norm_layer1": grad_norm_layer1
-            }
-
-            if X_val is not None:
-
-                val_logits = self.forward(X_val[:metric_subset])
-                val_loss = self.loss.forward(y_val[:metric_subset], val_logits)
-
-                val_preds = np.argmax(val_logits, axis=1)
-                val_labels = np.argmax(y_val[:metric_subset], axis=1)
-
-                val_accuracy = np.mean(val_preds == val_labels)
-
-                metrics["val_loss"] = val_loss
-                metrics["val_accuracy"] = val_accuracy
-
-            log_metrics(metrics)
 
     def evaluate(self, X, y):
 
