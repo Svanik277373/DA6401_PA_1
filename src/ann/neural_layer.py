@@ -20,8 +20,7 @@ class NeuralLayer:
 
     def forward(self, X):
 
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
+        X = np.atleast_2d(X)
 
         self.A_prev = X
         self.Z = X @ self.W + self.b
@@ -35,8 +34,7 @@ class NeuralLayer:
 
     def backward(self, grad_output):
 
-        if grad_output.ndim == 1:
-            grad_output = grad_output.reshape(1, -1)
+        grad_output = np.atleast_2d(grad_output)
 
         if self.activation:
             grad_output = grad_output * self.activation.backward(self.Z)
