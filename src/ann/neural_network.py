@@ -53,9 +53,6 @@ class NeuralNetwork:
         if X.ndim == 1:
             X = X.reshape(1, -1)
 
-        if X.ndim == 2 and X.shape[1] == 1:
-            X = X.T
-
         if X.shape[1] == 1:
             X = X.T
 
@@ -68,24 +65,15 @@ class NeuralNetwork:
 
     def backward(self, X=None, y=None):
 
-    if X is not None and y is not None:
+        if X is not None and y is not None:
 
-        X = np.array(X)
-        y = np.array(y)
+            logits = self.forward(X)
+            self.loss.forward(y, logits)
 
-        if X.ndim == 2 and X.shape[1] == 1:
-            X = X.T
+        grad = self.loss.backward()
 
-        if y.ndim == 2 and y.shape[1] == 1:
-            y = y.T
-
-        logits = self.forward(X)
-        self.loss.forward(y, logits)
-
-    grad = self.loss.backward()
-
-    for layer in reversed(self.layers):
-        grad = layer.backward(grad)
+        for layer in reversed(self.layers):
+            grad = layer.backward(grad)
 
     def update_weights(self):
 
