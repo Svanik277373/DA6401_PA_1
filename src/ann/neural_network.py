@@ -48,8 +48,7 @@ class NeuralNetwork:
 
     def forward(self, X):
 
-        if X.ndim == 1:
-            X = X.reshape(1, -1)
+        X = np.atleast_2d(X)
 
         out = X
 
@@ -62,10 +61,14 @@ class NeuralNetwork:
 
         if X is not None and y is not None:
 
+            X = np.atleast_2d(X)
+            y = np.atleast_2d(y)
+
             logits = self.forward(X)
             self.loss.forward(y, logits)
 
         grad = self.loss.backward()
+        grad = np.atleast_2d(grad)
 
         for layer in reversed(self.layers):
             grad = layer.backward(grad)
